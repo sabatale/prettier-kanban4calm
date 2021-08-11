@@ -424,3 +424,9 @@ body {
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
   filter: alpha(opacity=40);
 }
+/*Custom Bootstrap row*/
+.row {
+  margin-right: 0; 
+  margin-left: 0;
+  margin-top: 16px;
+}
