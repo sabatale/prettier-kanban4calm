@@ -71,7 +71,9 @@ app.get('/getprojects', function (req, res) {
 
         res.send(apiError.response.status, error.response.data);
         console.log(apiError);
-      });
+      }).catch(function (error) { //Add catch on API failure
+        res.status(500).json(error);
+      })
     });
 });
 

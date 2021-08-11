@@ -299,6 +299,17 @@
 		 font-size: 25px;
 	}
 }
+.lane-border {
+	--angle: to bottom;
+  --border-top-width: 0;
+  --border-right-width: 0;
+  --border-bottom-width: 0;
+  --border-left-width: 0.15em;
+  border-width: 0;
+  border-style: solid;
+  border-left-width: var(--border-left-width);
+  border-image: linear-gradient(var(--angle), #40e0d0, #ff8c00, #ff0080) 1;
+}
 .btn-primary.disabled, .btn-primary:disabled {
 	cursor: not-allowed;
 }
@@ -370,4 +381,46 @@ body {
     color: #fff;
     background-color: #4657e5;
     border-color: #4657e5;
+}
+/*Notifications*/
+.toast {
+  color: #2e2e2f;
+  background: #fff;
+  padding: 20px 15px 20px 20px;
+  border-radius: 10px;
+  border-left: 8px solid #2ecc71;
+  box-shadow: 1px 7px 14px -5px rgba(0,0,0,0.15);
+  width: 430px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.toast-fail {
+	color: #2e2e2f;
+  background: #fff;
+  padding: 20px 15px 20px 20px;
+  border-radius: 10px;
+	border-left: 8px solid #cc2e2e;
+	box-shadow: 1px 7px 14px -5px rgba(0,0,0,0.15);
+	width: 430px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.toast-close:hover {
+  background: #7784ee;
+  border-radius: 50%;
+  color: #fff;
+}
+/*Fix for Dragula scrollbar*/
+.gu-mirror {
+  position: initial !important;
+}
+.gu-unselectable {
+	overflow: hidden !important;
+}
+.gu-transit {	/*Personal taste - from 0.2 to 0.4 opacity on drag*/
+  opacity: 0.4;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";
+  filter: alpha(opacity=40);
 }

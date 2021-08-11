@@ -11,13 +11,16 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/4.0.0-alpha.1/css/bootstrap-switch.min.css" integrity="sha512-f4u6XE2foyXgNmVddMRFFQEr7wRmU2mGq3mUcLTU4nAv7HlkqPu1iMR2Sht/GPwRT+HqchQwvrgsazWVoetZAQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="/css/styles.css">
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css" integrity="sha512-zlYhSecphd+kwRzeCOyj7/u3HZIQ3Q0NP7AN7ZEKhYTdi0AQOGGbc7eA3I/mUffqjdr8G1/9xoS478h+I0MQGg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="/css/styles.css">
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js'></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/4.0.0-alpha.1/js/bootstrap-switch.min.js" integrity="sha512-UZt8f4ofvNrD+z3+g9xLPB8QxCxi4xQhAeOl5DEfSncy45ZT4Ma+seb67PC4YC4yYJEAdUOFkGilSRpiY0g2dw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body>
@@ -47,19 +50,19 @@
 							</form>
 							<div>
 								<input data-inverse="true" type="checkbox" data-toggle="switch" data-size="mini" id="switchtmpl">
-								<label for="switchtmpl" style="color: #495057; margin-bottom: 0rem; margin-left: 10px;"><b>Hide all Template Tasks</b></label>
+								<label for="switchtmpl" style="color: #495057; margin-bottom: 0rem; margin-left: 10px;"><b>Hide all Template Tasks</b><span style="font-size: 12px;"> (recommended)</span></label>
 							</div>
 						</nav>
 						<div class="row" id="kanbanBoard">
 						</div>
 					</div>
 			<template id="kanbanContainer">
-				<div class="kanbanContainer col-md-4 mt-2 project-column">
+				<div class="kanbanContainer col-md-4 mt-2 project-column lane-border">
 					<div class='project-column-heading m-2'>
             <h2 class='project-column-heading__title' style="text-transform: lowercase; color: white;">{{ label }}</h2>
 						<!--<button class='project-column-heading__options'><i class="fas fa-ellipsis-h"></i></button>-->
           </div>
-					<div class="kanbanItems" data-lane="{{ lane }}">
+					<div class="kanbanItems dragula-container" data-lane="{{ lane }}">
 					</div>
 				</div>
 			</template>
@@ -67,7 +70,7 @@
 				<div class="task" data-taskid="{{ id }}">
 					<div>
 						<div class='task__tags'><span class='task__tag'>{{ type }}</span>
-							<button class='task__options' data-toggle="modal" data-target="#taskDetails-{{ id }}"><i class="far fa-edit"></i></button>
+							<button class='task__options' data-toggle="modal" data-target="#taskDetails-{{ id }}"><i class="fas fa-info-circle"></i></button>
 						</div>
 						<p style="cursor: auto;">{{ title }}</p>
 						<input type="text" class="form-control clickedit " aria-label="Task Title"
@@ -109,8 +112,9 @@
 								</div>
 				      </div>
 				      <div class="modal-footer">
+								<!--<button type="button" class="btn btn-danger">DELETE</button>-->
 				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				        <button type="button" class="btn btn-primary">Save changes</button>
+				        <!--<button type="button" class="btn btn-primary">Save changes</button>-->
 				      </div>
 				    </div>
 				  </div>
@@ -178,11 +182,22 @@
 						getItems(jQuery('select#kanbanProjects').val());
 					}, 500);
 				});
-				console.log("Projects retrieved: ", data);
+				//console.log("Projects retrieved: ", data);
 				$('#loading').hide();	// Stops loader
 
 			}).fail(function () {
-				console.log("Failed project retrieval");
+				//console.log("Failed project retrieval");
+
+				//Failed toast..!
+				checkToastExist();
+				Toastify({
+					text: "Cannot connect to the CALM instance. Try again or check the system health.",
+					duration: 3000,
+					close: true,
+					gravity: "top", // `top` or `bottom`
+					stopOnFocus: true,
+					className: "toast-fail"
+				}).showToast();
 
 				//In case the server does not work, we fill the drop down with demo data, so we can at least test the client side...
 				var projects = [
@@ -256,19 +271,18 @@
 							var modalElement = jQuery(modalHtml);
 							$('.project').append(modalElement);
 					}).fail(function () {
-							console.log("Failed retrieving tasks details");
+							//console.log("Failed retrieving tasks details");
 					});
 					});
 					jQuery('div#kanbanBoard').append(laneElement);
 
+					//Dragula needs at least one card for drag&drop
+					checkEmptyColumns();
+
 					//Initializes Dragula for drag&drop
-					var drake = dragula([
-				  	document.querySelector('div.kanbanItems[data-lane="CIPTKOPEN"]'),
-				  	document.querySelector('div.kanbanItems[data-lane="CIPTKINP"]'),
-				  	document.querySelector('div.kanbanItems[data-lane="CIPTKCLOSE"]')
-				  ], {
+					var drake = dragula({
 					  isContainer: function (el) {
-					    return false; // only elements in drake.containers will be taken into account
+					    return el.classList.contains('dragula-container'); // only elements in drake.containers will be taken into account
 					  },
 					  moves: function (el, source, handle, sibling) {
 							return handle.classList.contains('task'); //prevents empty cards interaction
@@ -293,6 +307,9 @@
 
 					//Handles dragula drop events (PATCH)
 					drake.on('drop',function(el,target,source,sibling) {
+						if($('.container-fluid').find('.dragging').length) {	// Temporary fix - prevents multiple drops in parallel
+						} else {
+							$(el).addClass('dragging');
 							var taskid = el.getAttribute('data-taskid');
 							var newLane = target.getAttribute('data-lane');
 							var newTaskData = { status: newLane };
@@ -302,38 +319,57 @@
 								type: 'PATCH',
 								contentType: "application/json",
 								data: JSON.stringify(newTaskData),
-								async: false,
+								//async: false,	// Temporary fix - causes inconsistencies
 								crossDomain: true
 							}).done(function (data) {
-								console.log("Task Status changed!");
-								
+								//console.log("Task Status changed!");
+								$(el).removeClass('dragging');
 								//Dragula needs at least one card for drag&drop
 								checkEmptyColumns();
+								//Success toast!
+								checkToastExist();
+								Toastify({
+							    text: "Status update successful!",
+							    duration: 1500,
+							    close: true,
+							    gravity: "top", // `top` or `bottom`
+							    stopOnFocus: true,
+							    className: "toast"
+							  }).showToast();
 							}).fail(function () {
+								$(el).removeClass('dragging');
+								//Failed toast..!
+								checkToastExist();
+								Toastify({
+							    text: "Status update failed! Task reset.",
+							    duration: 1500,
+							    close: true,
+							    gravity: "top", // `top` or `bottom`
+							    stopOnFocus: true,
+							    className: "toast-fail"
+							  }).showToast();
 								source.appendChild(el);	// Resets task position on failure
 								return;
-								console.log("Task status change FAILED!");
+								//console.log("Task status change FAILED!");
 							});
+						}
 					});
 
 					//Enable Creation of new elements after project has been loaded
 					$('.enableOnProjectSelected').prop('disabled', false);
 
-					console.log("Tasks retrieved: ", data);
+					//console.log("Tasks retrieved: ", data);
 
 					$('#loading').hide();	// Stops loader
 				}).fail(function () {
 
-					console.log("Failed project retrieval");
+					//console.log("Failed project retrieval");
 					$('#loading').hide();	// Stops loader
 				});
 			});
 
 			//Add Handler to all Input forms for click editing...
 			addClickEventHandlers();
-
-			//Dragula needs at least one card for drag&drop
-			checkEmptyColumns();
 
 			//Replace technical names
 			var veryhigh = 10;
@@ -417,7 +453,7 @@
 			//Default data for a new card
 			var newTaskData = { projectId: jQuery('select#kanbanProjects').val(), title: "New Task", type: "CALMTASK" };
 
-			console.log(newTaskData);
+			//console.log(newTaskData);
 
 			//Create the new task in the backend
 			jQuery.ajax('/createTask', {
@@ -428,15 +464,15 @@
 				crossDomain: true
 			}).done(function (data) {
 
-				console.log(data);
-				console.log("Done task creation!");
+				//console.log(data);
+				//console.log("Done task creation!");
 
 				//When done we update the newly create card with the results from the backend, so we have the acual ID of the task in the card
 				itemHtml = itemHtml.replace(/{{ (.*) }}/g, function (text, placeholder) {
 					return data[placeholder] || '';
 				});
 
-				console.log('after creation of task: ' + data.id);
+				//console.log('after creation of task: ' + data.id);
 
 				//All new cards are added to the open swimlane
 				jQuery('div.kanbanItems[data-lane="CIPTKOPEN"]').prepend(itemHtml);
@@ -445,16 +481,35 @@
 				//Simulate a click on the newly added card, so that the user can change the title
 				jQuery('div.kanbanItem[data-taskid="' + data.id + '"] .card-body .card-title').trigger('click');
 
+				//Success toast!
+				checkToastExist();
+				Toastify({
+					text: "Task creation successful!",
+					duration: 1500,
+					close: true,
+					gravity: "top", // `top` or `bottom`
+					stopOnFocus: true,
+					className: "toast"
+				}).showToast();
 			}).fail(function () {
-
-				console.log("Failed task creation!");
+				//Failed toast..!
+				checkToastExist();
+				Toastify({
+					text: "Task creation failed! Nothing happened.",
+					duration: 1500,
+					close: true,
+					gravity: "top", // `top` or `bottom`
+					stopOnFocus: true,
+					className: "toast-fail"
+				}).showToast();
+				//console.log("Failed task creation!");
 
 			});
 		});
 
 		//this manages the clicks on a card
 		function addClickEventHandlers() {
-			console.log('Click Event Handlers updated');
+			//console.log('Click Event Handlers updated');
 
 			$('.clickedit').off();
 
@@ -484,36 +539,63 @@
 			var changedTaskId = input.parent().parent().data("taskid");
 			var newTitle = input.val();
 
-			console.log(input);
+			//console.log(input);
 
 			var newTaskData = { title: newTitle };
 
-			console.log(newTaskData);
+			//console.log(newTaskData);
 
-			jQuery.ajax('/editTask?taskid=' + changedTaskId, {
-				dataType: 'json',
-				type: 'PATCH',
-				contentType: "application/json",
-				data: JSON.stringify(newTaskData),
-				crossDomain: true
-			}).done(function (data) {
-				//When the update works, set also the label to the new text
-				label.text(input.val() === '' ? defaultText : input.val());
-				input.hide();
-				label.show();
+			$('#loading').show();	// Stops loader
 
-				console.log("Task edited!");
+				jQuery.ajax('/editTask?taskid=' + changedTaskId, {
+					dataType: 'json',
+					type: 'PATCH',
+					contentType: "application/json",
+					data: JSON.stringify(newTaskData),
+					crossDomain: true
+				}).done(function (data) {
+					//When the update works, set also the label to the new text
+					label.text(input.val() === '' ? defaultText : input.val());
+					input.hide();
+					label.show();
 
-			}).fail(function () {
-				//When the update fails, set the text back to the original
-				input.val(label.text());
+					//console.log("Task edited!");
 
-				input.hide();
-				label.show();
-				console.log("Task edit FAILED!");
+					$('#loading').hide();	// Stops loader
 
-			});
-			console.log("end Edit");
+					//Success toast!
+					checkToastExist();
+					Toastify({
+						text: "Task edit successful!",
+						duration: 1500,
+						close: true,
+						gravity: "top", // `top` or `bottom`
+						stopOnFocus: true,
+						className: "toast"
+					}).showToast();
+
+				}).fail(function () {
+					//When the update fails, set the text back to the original
+					input.val(label.text());
+
+					input.hide();
+					label.show();
+					//console.log("Task edit FAILED!");
+
+					$('#loading').hide();	// Stops loader
+
+					//Failed toast..!
+					checkToastExist();
+					Toastify({
+						text: "Task edit failed! Nothing happened.",
+						duration: 1500,
+						close: true,
+						gravity: "top", // `top` or `bottom`
+						stopOnFocus: true,
+						className: "toast-fail"
+					}).showToast();
+				});
+			//console.log("end Edit");
 		}
 
 		function checkEmptyColumns() {
@@ -525,6 +607,15 @@
 			}
 			if ($('div.kanbanItems[data-lane="CIPTKCLOSE"]').children().length == 0) {
 			$('div.kanbanItems[data-lane="CIPTKCLOSE"]').append('<div style="min-width: 50px; min-height: 50px;"></div>')
+			}
+		}
+
+		function checkToastExist() {
+			if ($('.toast')) {
+				$('.toast').remove();
+			}
+			if ($('.toast-fail')) {
+				$('.toast-fail').remove();
 			}
 		}
 	</script>
