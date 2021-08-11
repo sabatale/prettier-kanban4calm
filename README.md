@@ -11,9 +11,7 @@ This is by no means productive-ready or bug-free, but this sample should give yo
 
 ## important
 
-Because the tasks details are also fetched (e.g. description), it is NOT recommended to display all standard Template Tasks.
-
-If you do, the details are fetched asynchronously so you may have to wait a few seconds before being able to display those for all your tasks.
+Because the tasks details are also fetched (e.g. description), it is NOT recommended to display all standard Template Tasks. If you do, the details are fetched asynchronously so you may have to wait a few seconds before being able to display those for all your tasks.
 
 ## Features
 
