@@ -7,7 +7,7 @@ This is a fork from [the official SAP CALM Sample repo](https://github.com/SAP-s
 I wanted to show off what an actual Kanban board may look like with a modern theme, and some additional features.
 This is by no means productive-ready or bug-free, but this sample should give you a head start.
 
-![Check the demo here.](https://github.com/sabatale/prettier-kanban4calm/blob/main/demo.mp4)
+[Check the demo here.](https://github.com/sabatale/prettier-kanban4calm/blob/main/demo.mp4)
 
 ## Features
 
