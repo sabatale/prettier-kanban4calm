@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>SAP Cloud ALM - Kanban Board! @sabatale</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/4.0.0-alpha.1/css/bootstrap-switch.min.css" integrity="sha512-f4u6XE2foyXgNmVddMRFFQEr7wRmU2mGq3mUcLTU4nAv7HlkqPu1iMR2Sht/GPwRT+HqchQwvrgsazWVoetZAQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/css/styles.css">
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js'></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/4.0.0-alpha.1/js/bootstrap-switch.min.js" integrity="sha512-UZt8f4ofvNrD+z3+g9xLPB8QxCxi4xQhAeOl5DEfSncy45ZT4Ma+seb67PC4YC4yYJEAdUOFkGilSRpiY0g2dw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+	<div id="loading">
+	  <img id="loading-image" src="/css/loader.gif" alt="Loading..." />
+	</div>
+	<div class='app'>
+    <main class='project'>
+      <div class='project-info'>
+        <h1 style="color: white;">SAP Cloud ALM Kanban <a href="https://github.com/sabatale" target="_blank" style="color: #1c2095;">@sabatale</a><img src="/css/calm_logo.png" height="auto" width="50px;" alt="#" rel="#" style="margin-left: 10px; margin-bottom: 5px;" /></h1>
+				<div class='project-participants'>
+          <span></span>
+          <span></span>
+          <span></span>
+          <button class='project-participants__add'>Add Participant</button>
+
+          </div>
+      </div>
+
+			<div class="container-fluid" style="padding-right: 0px; padding-left: 0px;">
+						<nav class="navbar navbar-light bg-light" style="border-radius: 6px;">
+							<form class="form-inline">
+								<select class="form-control mr-2" id="kanbanProjects">
+								</select>
+								<button type="button" class="btn btn-primary enableOnProjectSelected createNewTaskButton"
+									disabled>New Task</button>
+							</form>
+							<div>
+								<input data-inverse="true" type="checkbox" data-toggle="switch" data-size="mini" id="switchtmpl">
+								<label for="switchtmpl" style="color: #495057; margin-bottom: 0rem; margin-left: 10px;"><b>Hide all Template Tasks</b></label>
+							</div>
+						</nav>
+						<div class="row" id="kanbanBoard">
+						</div>
+					</div>
+			<template id="kanbanContainer">
+				<div class="kanbanContainer col-md-4 mt-2 project-column">
+					<div class='project-column-heading m-2'>
+            <h2 class='project-column-heading__title' style="text-transform: lowercase; color: white;">{{ label }}</h2>
+						<!--<button class='project-column-heading__options'><i class="fas fa-ellipsis-h"></i></button>-->
+          </div>
+					<div class="kanbanItems" data-lane="{{ lane }}">
+					</div>
+				</div>
+			</template>
+			<template id="kanbanItem">
+				<div class="task" data-taskid="{{ id }}">
+					<div>
+						<div class='task__tags'><span class='task__tag'>{{ type }}</span>
+							<button class='task__options' data-toggle="modal" data-target="#taskDetails-{{ id }}"><i class="far fa-edit"></i></button>
+						</div>
+						<p style="cursor: auto;">{{ title }}</p>
+						<input type="text" class="form-control clickedit " aria-label="Task Title"
+							aria-describedby="basic-addon2" value="{{ title }}">
+						<div class='task__stats'>
+							<span class="due-date"><i class="fas fa-flag"></i>{{ dueDate }}</span>
+							<i class="fas fa-arrow-up"></i><span class="priority">{{ priorityId }}</span>
+							<!--<span><i class="fas fa-paperclip"></i>7</span>-->
+							<span class='task__owner'></span>
+						</div>
+					</div>
+				</div>
+			</template>
+			<template id="modalItem">
+				<div class="modal fade" id="taskDetails-{{ id }}" tabindex="-1" aria-labelledby="taskDetailslabel" aria-hidden="true">
+				  <div class="modal-dialog modal-lg">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <div>
+									<h5 class="modal-title" id="#taskDetailslabel" style="display:inline-block; float:left;">Task Details</h5>
+									<span style="font-size: 8px; color: grey; padding-left: 20px;">{{ id }}</span>
+								</div>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+				      <div class="modal-body">
+				        <h4>{{ title }}</h4>
+								<br>
+								<div>
+					        <p id="modalPhase"><b>Phase: </b>{{ timeboxName }}</p>
+					        <p id="modalType"><b>Type: </b>{{ type }}</p>
+					        <p id="modalResp"><b>Responsible: </b>{{ assigneeName }}</p>
+					        <p id="modalDue"><b>Due Date: </b>{{ dueDate }}</p>
+								</div>
+				        <div id="modalDescr">
+									<b>Description: </b>
+									<br><br>{{ description }}
+								</div>
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				        <button type="button" class="btn btn-primary">Save changes</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+			</template>
+		</main>
+	</div>
+	<!-- Define the three swim lanes with the necessary task status mapping and drag&drop config-->
+	<script type="text/javascript">
+		var lanes = {
+			CIPTKOPEN: {
+				label: 'OPEN',
+				color: 'bg-secondary',
+				put: ['CIPTKINP']
+			},
+			CIPTKINP: {
+				label: 'IN PROGRESS',
+				color: 'bg-info',
+				put: ['CIPTKOPEN', 'CIPTKCLOSE']
+			},
+			CIPTKCLOSE: {
+				label: 'DONE',
+				color: 'bg-success',
+				put: ['CIPTKINP']
+			}
+		};
+
+		// Filtering Template tasks?
+		var isTmpl = '';
+		$('[data-toggle="switch"]').bootstrapSwitch({
+		  onSwitchChange: function(e, state) {
+		    isTmpl = state;
+		  }
+		});
+		$('[data-toggle="switch"]').bootstrapSwitch('state', true);	//Sets filter ON by default
+
+		function getProjects() {
+			jQuery('select#kanbanProjects').off('change');
+			jQuery('select#kanbanProjects').find('option').remove();
+
+			//Call Server side API to retrieve the projects, filtering is done on the server side
+			jQuery.ajax('/getprojects', {
+				dataType: 'json',
+				crossDomain: true
+			}).done(function (data) {
+				//Initial entry in dropdown...
+				jQuery('select#kanbanProjects').append(new jQuery('<option>', {
+					text: "Select Project",
+					disabled: '',
+					selected: '',
+				}));
+				//Add all projects to the drop down
+				jQuery.each(data, function (index, project) {
+					jQuery('select#kanbanProjects').append(new jQuery('<option>', {
+						value: project.id,
+						text: project.name
+					}))
+				});
+				//Create handler that when project selection is changed, the swim lanes are filled
+				jQuery('select#kanbanProjects').on('change', function (event) {
+
+					$('#loading').show(); // Starts loading
+
+					setTimeout(function(){
+						getItems(jQuery('select#kanbanProjects').val());
+					}, 500);
+				});
+				console.log("Projects retrieved: ", data);
+				$('#loading').hide();	// Stops loader
+
+			}).fail(function () {
+				console.log("Failed project retrieval");
+
+				//In case the server does not work, we fill the drop down with demo data, so we can at least test the client side...
+				var projects = [
+					{ id: 0, name: 'Demo Data 0' },
+					{ id: 1, name: 'Demo Data 1' },
+
+				];
+				jQuery.each(projects, function (index, project) {
+					jQuery('select#kanbanProjects').append(new jQuery('<option>', {
+						value: project.id,
+						text: project.name
+					}))
+				});
+				jQuery('select#kanbanProjects').on('change', function (event) {
+					getItems(jQuery('select#kanbanProjects').val());
+				});
+				$('#loading').hide();	// Stops loader
+			});
+		}
+
+		//Getting the tasks for a specific project (is triggered when the project selection is changed)
+		function getItems(projectId) {
+			//Delete all exising Swimlanes
+			jQuery('div#kanbanBoard').find('div.kanbanContainer').remove();
+
+			//For each lane defined in the global config, duplicate the template and replace placeholders
+			//Then get the tasks and add them to the swimlane, initialize SortableJS et voila...
+			jQuery.each(lanes, function (laneName, lane) {
+				var laneHtml = jQuery('template#kanbanContainer').clone().html();
+				// replace {{ lane }} with laneName
+				laneHtml = laneHtml.replace('{{ lane }}', laneName);
+				// replace {{ placeholder }} with lane.placeholder
+				laneHtml = laneHtml.replace(/{{ (.*) }}/g, function (text, placeholder) {
+					return lane[placeholder] || '';
+				});
+				var laneElement = jQuery(laneHtml);
+
+				// do ajax call to get the project tasks, for the current status...
+				jQuery.ajax('/gettasks?projectid=' + projectId + '&status=' + laneName + '&istmpl=' + isTmpl, {
+					dataType: 'json',
+					async: false,
+					crossDomain: true
+				}).done(function (data) {
+
+					//Again for each task, duplicate the template, replace the placeholders with the actual data of the task and add it to the swimlane
+					jQuery.each(data, function (index, item) {
+						// For tasks
+						var itemHtml = jQuery('template#kanbanItem').clone().html();
+						itemHtml = itemHtml.replace(/{{ (.*) }}/g, function (text, placeholder) {
+							return item[placeholder] || '';
+						});
+						var itemElement = jQuery(itemHtml);
+						laneElement.find('div.kanbanItems').append(itemElement);
+
+						var taskId = item.id;	// ID is parsed from URL and sent to the actual endpoint through Node
+						jQuery.ajax('/tasks?taskid=' + taskId, {
+							dataType: 'json',
+							//async: false, //Temporary fix to avoid waiting minutes when a project contains hundreds of tasks
+							crossDomain: true
+						}).done(function (itemdetails) {
+							// For modals (task details)
+							var modalHtml = jQuery('template#modalItem').clone().html();
+							modalHtml = modalHtml.replace(/{{ (.*) }}/g, function (text, placeholder) {
+								return itemdetails[placeholder] || '';
+							});
+								// Renaming technical names
+								modalHtml = modalHtml.replace(/CALMTMPL/, "Template Task");
+								modalHtml = modalHtml.replace(/CALMTASK/, "Project Task");
+								modalHtml = modalHtml.replace(/CALMUS/, "User Story");
+								modalHtml = modalHtml.replace(/CALMST/, "Sub-task");
+							var modalElement = jQuery(modalHtml);
+							$('.project').append(modalElement);
+					}).fail(function () {
+							console.log("Failed retrieving tasks details");
+					});
+					});
+					jQuery('div#kanbanBoard').append(laneElement);
+
+					//Initializes Dragula for drag&drop
+					var drake = dragula([
+				  	document.querySelector('div.kanbanItems[data-lane="CIPTKOPEN"]'),
+				  	document.querySelector('div.kanbanItems[data-lane="CIPTKINP"]'),
+				  	document.querySelector('div.kanbanItems[data-lane="CIPTKCLOSE"]')
+				  ], {
+					  isContainer: function (el) {
+					    return false; // only elements in drake.containers will be taken into account
+					  },
+					  moves: function (el, source, handle, sibling) {
+							return handle.classList.contains('task'); //prevents empty cards interaction
+					    //return true; // elements are always draggable by default
+					  },
+					  accepts: function (el, target, source, sibling) {
+					    return true; // elements can be dropped in any of the `containers` by default
+					  },
+					  invalid: function (el, handle) {
+					    return false; // don't prevent any drags from initiating by default
+					  },
+					  direction: 'vertical',             // Y axis is considered when determining where an element would be dropped
+					  copy: false,                       // elements are moved by default, not copied
+					  copySortSource: false,             // elements in copy-source containers can be reordered
+					  revertOnSpill: true,              // spilling will put the element back where it was dragged from, if this is true
+					  removeOnSpill: false,              // spilling will `.remove` the element, if this is true
+					  mirrorContainer: document.body,    // set the element that gets mirror elements appended
+					  ignoreInputTextSelection: true,     // allows users to select input text, see details below
+					  slideFactorX: 0,               // allows users to select the amount of movement on the X axis before it is considered a drag instead of a click
+					  slideFactorY: 0,               // allows users to select the amount of movement on the Y axis before it is considered a drag instead of a click
+					});
+
+					//Handles dragula drop events (PATCH)
+					drake.on('drop',function(el,target,source,sibling) {
+							var taskid = el.getAttribute('data-taskid');
+							var newLane = target.getAttribute('data-lane');
+							var newTaskData = { status: newLane };
+
+							jQuery.ajax('/editTask?taskid=' + taskid, {
+								dataType: 'json',
+								type: 'PATCH',
+								contentType: "application/json",
+								data: JSON.stringify(newTaskData),
+								async: false,
+								crossDomain: true
+							}).done(function (data) {
+								console.log("Task Status changed!");
+								
+								//Dragula needs at least one card for drag&drop
+								checkEmptyColumns();
+							}).fail(function () {
+								source.appendChild(el);	// Resets task position on failure
+								return;
+								console.log("Task status change FAILED!");
+							});
+					});
+
+					//Enable Creation of new elements after project has been loaded
+					$('.enableOnProjectSelected').prop('disabled', false);
+
+					console.log("Tasks retrieved: ", data);
+
+					$('#loading').hide();	// Stops loader
+				}).fail(function () {
+
+					console.log("Failed project retrieval");
+					$('#loading').hide();	// Stops loader
+				});
+			});
+
+			//Add Handler to all Input forms for click editing...
+			addClickEventHandlers();
+
+			//Dragula needs at least one card for drag&drop
+			checkEmptyColumns();
+
+			//Replace technical names
+			var veryhigh = 10;
+			var high = 20;
+			var medium = 30;
+			var low = 40;
+
+			if ($('.priority:contains("'+veryhigh+'")').length > 0) {
+				var els = $('.priority:contains("'+veryhigh+'")');
+				Array.prototype.forEach.call(els, function(el) {
+				    $(el).text("Very High");
+						$(el).css("color", "#db0000");
+				});
+			}
+			if ($('.priority:contains("'+high+'")').length > 0) {
+				var els = $('.priority:contains("'+high+'")');
+				Array.prototype.forEach.call(els, function(el) {
+				    $(el).text("High");
+						$(el).css("color", "rgb(255 5 5)");
+				});
+			}
+			if ($('.priority:contains("'+medium+'")').length > 0) {
+				var els = $('.priority:contains("'+medium+'")');
+				Array.prototype.forEach.call(els, function(el) {
+				    $(el).text("Medium");
+						$(el).css("color", "orange");
+				});
+			}
+			if ($('.priority:contains("'+low+'")').length > 0) {
+				var els = $('.priority:contains("'+low+'")');
+				Array.prototype.forEach.call(els, function(el) {
+				    $(el).text("Low");
+				});
+			}
+
+			var ctmpl = "CALMTMPL";
+			var ctask = "CALMTASK";
+			var cus = "CALMUS";
+			var cst = "CALMST";
+
+			if ($('.task__tag:contains("'+ctmpl+'")').length > 0) {
+				var els = $('.task__tag:contains("'+ctmpl+'")');
+				Array.prototype.forEach.call(els, function(el) {
+						$(el).text("Template Task");
+						$(el).addClass("task__tag--tmpl");
+				});
+			}
+			if ($('.task__tag:contains("'+ctask+'")').length > 0) {
+				var els = $('.task__tag:contains("'+ctask+'")');
+				Array.prototype.forEach.call(els, function(el) {
+						$(el).text("Project Task");
+						$(el).addClass("task__tag--task");
+				});
+			}
+			if ($('.task__tag:contains("'+cus+'")').length > 0) {
+				var els = $('.task__tag:contains("'+cus+'")');
+				Array.prototype.forEach.call(els, function(el) {
+						$(el).text("User Story");
+						$(el).addClass("task__tag--us");
+				});
+			}
+			if ($('.task__tag:contains("'+cst+'")').length > 0) {
+				var els = $('.task__tag:contains("'+cst+'")');
+				Array.prototype.forEach.call(els, function(el) {
+						$(el).text("Sub-task");
+						$(el).addClass("task__tag--st");
+				});
+			}
+		}
+		// when document is ready, populate the drop down so a user can select a project
+		jQuery(function () {
+			getProjects();
+		});
+
+		//When the create new button is clicked, we create a new card from the template,
+		$('.createNewTaskButton').click(function () {
+			//Duplicate the template for a new card
+			var itemHtml = jQuery('template#kanbanItem').clone().html();
+			var itemElement = jQuery(itemHtml);
+
+			//Default data for a new card
+			var newTaskData = { projectId: jQuery('select#kanbanProjects').val(), title: "New Task", type: "CALMTASK" };
+
+			console.log(newTaskData);
+
+			//Create the new task in the backend
+			jQuery.ajax('/createTask', {
+				dataType: 'json',
+				type: 'POST',
+				contentType: "application/json",
+				data: JSON.stringify(newTaskData),
+				crossDomain: true
+			}).done(function (data) {
+
+				console.log(data);
+				console.log("Done task creation!");
+
+				//When done we update the newly create card with the results from the backend, so we have the acual ID of the task in the card
+				itemHtml = itemHtml.replace(/{{ (.*) }}/g, function (text, placeholder) {
+					return data[placeholder] || '';
+				});
+
+				console.log('after creation of task: ' + data.id);
+
+				//All new cards are added to the open swimlane
+				jQuery('div.kanbanItems[data-lane="CIPTKOPEN"]').prepend(itemHtml);
+				addClickEventHandlers();
+
+				//Simulate a click on the newly added card, so that the user can change the title
+				jQuery('div.kanbanItem[data-taskid="' + data.id + '"] .card-body .card-title').trigger('click');
+
+			}).fail(function () {
+
+				console.log("Failed task creation!");
+
+			});
+		});
+
+		//this manages the clicks on a card
+		function addClickEventHandlers() {
+			console.log('Click Event Handlers updated');
+
+			$('.clickedit').off();
+
+			$('.clickedit').hide()
+				.focusout(endEdit)
+				.keyup(function (e) {
+					if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+						endEdit(e);
+						return false;
+					} else {
+						return true;
+					}
+				})
+				.prev().click(function () {
+					$(this).hide();
+					$(this).next().show().focus();
+					$(this).next().show().focus().select();
+				});
+
+		}
+
+		//When edit has ended, we update the task in the backend with the new data of the task
+		function endEdit(e) {
+			var input = $(e.target),
+				label = input && input.prev();
+
+			var changedTaskId = input.parent().parent().data("taskid");
+			var newTitle = input.val();
+
+			console.log(input);
+
+			var newTaskData = { title: newTitle };
+
+			console.log(newTaskData);
+
+			jQuery.ajax('/editTask?taskid=' + changedTaskId, {
+				dataType: 'json',
+				type: 'PATCH',
+				contentType: "application/json",
+				data: JSON.stringify(newTaskData),
+				crossDomain: true
+			}).done(function (data) {
+				//When the update works, set also the label to the new text
+				label.text(input.val() === '' ? defaultText : input.val());
+				input.hide();
+				label.show();
+
+				console.log("Task edited!");
+
+			}).fail(function () {
+				//When the update fails, set the text back to the original
+				input.val(label.text());
+
+				input.hide();
+				label.show();
+				console.log("Task edit FAILED!");
+
+			});
+			console.log("end Edit");
+		}
+
+		function checkEmptyColumns() {
+			if ($('div.kanbanItems[data-lane="CIPTKOPEN"]').children().length == 0) {
+				$('div.kanbanItems[data-lane="CIPTKOPEN"]').append('<div style="min-width: 50px; min-height: 50px;"></div>')
+			}
+			if ($('div.kanbanItems[data-lane="CIPTKINP"]').children().length == 0) {
+				$('div.kanbanItems[data-lane="CIPTKINP"]').append('<div style="min-width: 50px; min-height: 50px;"></div>')
+			}
+			if ($('div.kanbanItems[data-lane="CIPTKCLOSE"]').children().length == 0) {
+			$('div.kanbanItems[data-lane="CIPTKCLOSE"]').append('<div style="min-width: 50px; min-height: 50px;"></div>')
+			}
+		}
+	</script>
+</body>
+
+</html>
